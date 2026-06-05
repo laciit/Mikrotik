@@ -1,0 +1,29 @@
+/system scheduler
+add interval=1m name=SMS_Schedule on-event=SMStoDiscord policy=read,write,test,sensitive
+/system script
+add dont-require-permissions=yes name=SMStoDiscord policy=read,write,test,sensitive source="while ([/tool sms inbox print count-only] > 0) do={\
+    \n\
+    \n    :local sms ([:pick [/tool sms inbox print as-value] 0]);\
+    \n    :local WEBHOOK \"YOUR_DISCORD_WEBHOOK_URL\"\
+    \n    :local uzenet (\"Sender: \". \$sms->\"phone\" . \"\\r\\nDate: \". [:pick (\$sms->\"timestamp\") 0 ([:find (\$sms->\"timestamp\") \"+\"])] . \"\\r\\nSMS:\\\
+    r\\n\". \$sms->\"message\");\
+    \n\
+    \n    :local uzenetEncoded \"\";\
+    \n    :for i from=0 to=([:len \$uzenet] - 1) do={\
+    \n        :local char [:pick \$uzenet \$i];\
+    \n        :if (\$char = \"\\r\") do={ :set \$char \"\" };\
+    \n        :if (\$char = \"\\n\") do={ :set \$char \"\\\\n\" };\
+    \n        :if (\$char = \"\\\"\") do={ :set \$char \"\\\\\\\"\" };  # JSON id\EF\BF\BDz\EF\BF\BDjel escape\
+    \n        :set uzenetEncoded (\$uzenetEncoded . \$char);\
+    \n    }\
+    \n\
+    \n    /tool fetch \\\
+    \n        url=\"\$WEBHOOK\" \\\
+    \n        http-method=post \\\
+    \n        http-header-field=\"Content-Type:application/json\" \\\
+    \n        http-data=\"{\\\"content\\\":\\\"```\$uzenetEncoded```\\\"}\" \\\
+    \n        output=none;\
+    \n\
+    \n    /tool sms inbox remove numbers=0;\
+    \n}\
+    \n"
