@@ -13,7 +13,7 @@ add dont-require-permissions=yes name=SMStoDiscord policy=read,write,test,sensit
     \n        :local char [:pick \$uzenet \$i];\
     \n        :if (\$char = \"\\r\") do={ :set \$char \"\" };\
     \n        :if (\$char = \"\\n\") do={ :set \$char \"\\\\n\" };\
-    \n        :if (\$char = \"\\\"\") do={ :set \$char \"\\\\\\\"\" };  # JSON id\EF\BF\BDz\EF\BF\BDjel escape\
+    \n        :if (\$char = \"\\\"\") do={ :set \$char \"\\\\\\\"\" };  
     \n        :set uzenetEncoded (\$uzenetEncoded . \$char);\
     \n    }\
     \n\
